@@ -50,7 +50,7 @@ fn calculate_all_fuel_mass( masses: Vec<f64> ) -> f64 {
 }
 
 fn main() {
-    let filename = "./day1/puzzleInput.txt";
+    let filename = "./day01/puzzleInput.txt";
     let lines = lines_from_file( filename );
 
     println!( "Part One: sum of masses {}", calculate_fuel_and_sum( lines.clone() ) );
