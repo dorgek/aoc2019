@@ -76,24 +76,24 @@ fn calculate_collisions( wires: Vec<Vec<(i64, i64)>> ) -> i64 {
                     match intersection {
                         Some(x) => {
                             // for part 1
-                            let dist = x.0.abs() + x.1.abs();
+                            // let dist = x.0.abs() + x.1.abs();
 
-                            if closest_distance_point > dist && wire_start.0 != 0 && wire_start.1 != 0 {
-                                closest_distance_point = dist;
-                            }
-
-                            // // for part 2
-                            // let new_dist = ( max( prev_wire_segment.0, x.0 ) - min( wire_start.0, x.0 ) ) + ( max( prev_wire_segment.1, x.1 ) - min( prev_wire_segment.1, x.1 ) );
-                            // let new_dist_two = ( max( prev_wire_segment.0, x.0 ) - min( prev_wire_segment.0, x.0 ) ) + ( max( prev_wire_segment.1, x.1 ) - min( prev_wire_segment.1, x.1 ) );
-
-                            // if current_steps_one + new_dist + new_dist_two + current_steps_two < num_steps && wire_start.0 != 0 && wire_start.1 != 0 {
-                            //     num_steps = current_steps_one + new_dist + new_dist_two + current_steps_two;
+                            // if closest_distance_point > dist && wire_start.0 != 0 && wire_start.1 != 0 {
+                            //     closest_distance_point = dist;
                             // }
 
-                            // current_steps_two += ( max( prev_wire_segment.0, next_wire_segment.0 ) - min( prev_wire_segment.0, next_wire_segment.0 ) ) + ( max( prev_wire_segment.1, next_wire_segment.1 ) - min( prev_wire_segment.1, next_wire_segment.1 ) );
+                            // for part 2
+                            let new_dist = ( max( wire_start.0, x.0 ) - min( wire_start.0, x.0 ) ) + ( max( wire_start.1, x.1 ) - min( wire_start.1, x.1 ) );
+                            let new_dist_two = ( max( prev_wire_segment.0, x.0 ) - min( prev_wire_segment.0, x.0 ) ) + ( max( prev_wire_segment.1, x.1 ) - min( prev_wire_segment.1, x.1 ) );
+
+                            if current_steps_one + new_dist + new_dist_two + current_steps_two < num_steps && wire_start.0 != 0 && wire_start.1 != 0 {
+                                num_steps = current_steps_one + new_dist + new_dist_two + current_steps_two;
+                            }
+
+                            current_steps_two += ( max( prev_wire_segment.0, next_wire_segment.0 ) - min( prev_wire_segment.0, next_wire_segment.0 ) ) + ( max( prev_wire_segment.1, next_wire_segment.1 ) - min( prev_wire_segment.1, next_wire_segment.1 ) );
                         },
                         None    => {
-                            // current_steps_two += ( max( prev_wire_segment.0, next_wire_segment.0 ) - min( prev_wire_segment.0, next_wire_segment.0 ) ) + ( max( prev_wire_segment.1, next_wire_segment.1 ) - min( prev_wire_segment.1, next_wire_segment.1 ) );
+                            current_steps_two += ( max( prev_wire_segment.0, next_wire_segment.0 ) - min( prev_wire_segment.0, next_wire_segment.0 ) ) + ( max( prev_wire_segment.1, next_wire_segment.1 ) - min( prev_wire_segment.1, next_wire_segment.1 ) );
                         }
                     };
 
@@ -107,8 +107,8 @@ fn calculate_collisions( wires: Vec<Vec<(i64, i64)>> ) -> i64 {
         }
     }
 
-    return closest_distance_point;
-    // return num_steps;
+    // return closest_distance_point;
+    return num_steps;
 }
 
 fn intersection( point_start: (i64, i64), point_end: (i64, i64), seg_one: (i64, i64), seg_two: (i64, i64) ) -> Option<(i64, i64)> {
@@ -136,7 +136,7 @@ fn intersection( point_start: (i64, i64), point_end: (i64, i64), seg_one: (i64, 
 }
 
 fn main() {
-    let filepath = "day03/testInput.txt";
+    let filepath = "day03/puzzleInput.txt";
     let wires = process_input( filepath );
 
     println!( "Answer: {}", calculate_collisions( wires ) );
