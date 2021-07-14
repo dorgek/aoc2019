@@ -21,6 +21,8 @@ pub trait Computer {
     fn get_output_value( &mut self ) -> i64;
     fn set_inputs( &mut self, inputs: Vec<i64> );
     fn display_std_out( &mut self, disp_std_out: bool );
+    fn pause_execution_on_output( &mut self, pause_execution: bool );
+    fn has_finished( &mut self ) -> bool;
 
     fn private_read_parameter( &mut self, parameter_mode: Option<i64> ) -> i64;
     fn read_digit( &mut self, digit: i64, place: u32 ) -> Option< i64 >;
@@ -30,9 +32,11 @@ pub struct CPU {
     dispatcher: HashMap<usize, Instruction>,
     memory: HashMap<usize, i64>,
     idx: usize,
-    out: i64,
+    out: Option<i64>,
     inputs: Vec<i64>,
-    disp_std_out: bool
+    disp_std_out: bool,
+    pause_execution: bool,
+    finished: bool
 }
 
 impl Computer for CPU {
@@ -48,13 +52,11 @@ impl Computer for CPU {
         dispatcher.insert( 8, Self::equals as Instruction );
         dispatcher.insert( 99, Self::exit as Instruction );
 
-        CPU { dispatcher: dispatcher, memory: memory, idx: 0, out: 0, inputs: Vec::new(), disp_std_out: true }
+        CPU { dispatcher: dispatcher, memory: memory, idx: 0, out: None, inputs: Vec::new(), disp_std_out: true, pause_execution: false, finished: false }
     }
 
     fn execute_instructions( &mut self ) {
-        let size = self.memory.len();
-
-        while self.idx < size {
+        while !self.finished && !( self.pause_execution && !self.out.is_none() ){
             self.execute_instruction();
         }
     }
@@ -120,15 +122,13 @@ impl Computer for CPU {
     }
 
     fn write( &mut self, param_one_mode: Option<i64>, _: Option<i64> ) {
-        let value: i64;
-
-        value = self.private_read_parameter( param_one_mode );
+        let value = self.private_read_parameter( param_one_mode );
 
         if self.disp_std_out {
-            println!( "{}", value );
+            println!( "Output: {}", value );
         }
 
-        self.out = value;
+        self.out = Some(value);
     }
 
     fn jump_if_true( &mut self, param_one_mode: Option<i64>, param_two_mode: Option<i64>) {
@@ -201,7 +201,7 @@ impl Computer for CPU {
     }
 
     fn exit( &mut self, _: Option<i64>, _: Option<i64> ) {
-        self.idx = self.memory.len();
+        self.finished = true;
     }
 
     fn print_initial_value( &mut self ) {
@@ -209,7 +209,9 @@ impl Computer for CPU {
     }
 
     fn get_output_value( &mut self ) -> i64 {
-        return self.out;
+        let ret = self.out.unwrap();
+        self.out = None;
+        return ret;
     }
 
     fn set_inputs( &mut self, inputs: Vec<i64> ) {
@@ -231,5 +233,13 @@ impl Computer for CPU {
         self.idx += 1;
 
         return ret;
+    }
+
+    fn pause_execution_on_output( &mut self, pause_execution: bool ) {
+        self.pause_execution = pause_execution;
+    }
+
+    fn has_finished( &mut self ) -> bool {
+        return self.finished;
     }
 }

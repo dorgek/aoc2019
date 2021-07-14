@@ -104,7 +104,7 @@ fn dijkstras( adjaceny_list: HashMap<String, String>, src: String, dest: String 
     return list[&dest].0 - 2;
 }
 
-
+#[allow(dead_code)]
 pub fn day_06( args: Vec<String> ) {
     let input_data = lines_from_file( args[1].clone() );
     let cache: HashMap<String, u64> = HashMap::new();
