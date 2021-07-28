@@ -113,6 +113,7 @@ fn get_pixel( x: usize, y: usize, image: Array2<i64> ) -> &'static str {
     };
 }
 
+#[allow(dead_code)]
 pub fn day_08( args: Vec<String> ) {
     let input_data = process_data( args[1].clone() );
     part_one( input_data.clone() );
