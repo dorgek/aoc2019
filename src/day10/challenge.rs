@@ -151,6 +151,7 @@ fn part_two( data: Array2<i64>, base_location: ( f64, f64 ) ) {
     println!( "Part two: asteroid -> x: {}, y: {}, ans = {}", destroyed_asteroid.0, destroyed_asteroid.1, destroyed_asteroid.0 * 100.0 + destroyed_asteroid.1 );
 }
 
+#[allow(dead_code)]
 pub fn day_10( args: Vec<String> ) {
     let data = process_data( args[1].clone() );
     let base_location = part_one( data.clone() );
