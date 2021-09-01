@@ -225,6 +225,7 @@ fn part_two( mut sim: Space ) {
     println!( "Part Two: num steps to initial state {}", num_steps );
 }
 
+#[allow(dead_code)]
 pub fn day_12( args: Vec<String> ) {
     let sim: Space = Simulation::initialise( args[1].clone() );
 

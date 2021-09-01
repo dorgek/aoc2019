@@ -26,6 +26,8 @@ dependencies = [
  "itertools",
  "ndarray",
  "num",
+ "num-derive",
+ "num-traits",
  "ordered-float",
  "regex",
 ]
