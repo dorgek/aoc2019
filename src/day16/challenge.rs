@@ -85,6 +85,7 @@ fn print_num( input_val: Vec<u8>, num_skip: u32, num_digits_print: u32 ) {
     println!();
 }
 
+#[allow(dead_code)]
 pub fn day_16( _args: Vec<String> ) {
     let mut input_data = process_input( DATA );
     let mut part_two_input_data: Vec<u8> = input_data.repeat(10_000);
