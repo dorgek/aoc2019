@@ -16,10 +16,11 @@ extern crate approx;
 #[path = "day16/challenge.rs"] mod day16;
 #[path = "day17/challenge.rs"] mod day17;
 #[path = "day18/challenge.rs"] mod day18;
+#[path = "day19/challenge.rs"] mod day19;
 
 use std::env;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    day17::day_17( args );
+    day19::day_19( args );
 }
