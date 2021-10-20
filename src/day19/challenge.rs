@@ -138,6 +138,7 @@ fn part_two( cpu_in: CPU ) {
     println!( "Part two: top corner -> x * 10 000 + y = {}", bottom_corner.0 * 10_000 + ( bottom_corner.1 - SIZE + 1 ) );
 }
 
+#[allow(dead_code)]
 pub fn day_19( _args: Vec< String > ) {
     let opcodes = process_input( DATA );
     let cpu = CPU::initialise( opcodes.clone() );
