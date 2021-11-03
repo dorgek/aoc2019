@@ -57,6 +57,7 @@ fn part_two( cpu: &mut CPU ) {
     springdroid( cpu, springscript );
 }
 
+#[allow(dead_code)]
 pub fn day_21( _args: Vec< String > ) {
     let opcodes = process_input( DATA );
     let mut cpu = CPU::initialise( opcodes );

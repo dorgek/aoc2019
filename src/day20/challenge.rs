@@ -8,7 +8,8 @@ const DATA: &str = include_str!( "./puzzleInput.txt" );
 struct Neighbour {
     key: String,
     weight: u64,
-    depth: i64
+    depth: i64,
+    up: bool
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy)]
@@ -95,7 +96,7 @@ fn part_two_data_structure( data_vec_in: Vec< Vec< String > > ) -> Vec< Vec< Str
                 // check left
                 let idx_update = idx as i64 - 2;
                 if let Some( left ) = l.get( idx_update as usize ) {
-                    if idx == l.len() {
+                    if idx >= l.len() - 4 {
                         update_label += "1"; // outer
                     } else {
                         update_label += "2"; // inner
@@ -119,6 +120,8 @@ fn part_two_data_structure( data_vec_in: Vec< Vec< String > > ) -> Vec< Vec< Str
             current_char = next_char;
         }
     }
+
+    // println!( "{:?}", data_vec_char );
 
     // vertical checks
     for idx_x in 0.. data_vec_char[0].len() {
@@ -184,12 +187,12 @@ fn build_graph( part_one: bool ) -> BTreeMap< String, Vec< Neighbour > > {
 
         for ( _, d, dk ) in distances {
             if dk.chars().next().unwrap().is_alphabetic() {
-                let depth = match dk.chars().last() {
-                    Some( '2' ) => 1,
-                    _ => -1
+                let ( depth, up ) = match dk.chars().last() {
+                    Some( '2' ) => ( 1, false ),
+                    _ => ( -1, true )
                 };
 
-                neighbours.push( Neighbour{ key: dk.to_string(), weight: d, depth: depth })
+                neighbours.push( Neighbour{ key: dk.to_string(), weight: d, depth: depth, up: up })
             }
         }
 
@@ -312,38 +315,58 @@ fn dijkstra( graph: BTreeMap< String, Vec< Neighbour > >, start_node: String ) -
 }
 
 fn dijkstra_two( graph: BTreeMap< String, Vec< Neighbour > >, start_node: String ) -> BTreeMap< ( String, i64 ), u64 > {
-    let mut distances: BTreeMap< ( String, i64 ), u64 > = BTreeMap::new();
+    let mut distances: BTreeMap< ( String, i64 ), ( u64, i64 ) > = BTreeMap::new();
     let mut to_visit: Vec< ( String, i64 ) > = Vec::new();
 
-    distances.insert( ( start_node.clone(), 0 ), 0 );
+    distances.insert( ( start_node.clone(), 0 ), ( 0, 0 ) );
     to_visit.push( ( start_node.clone(), 0 ) );
 
     while let Some( current_node ) = to_visit.pop() {
         if let Some( neighbours ) = graph.get( &current_node.0 ) {
             for neighbour in neighbours {
-                let current_distance: u64 = *distances.get( &current_node ).unwrap();
+                let current_info = *distances.get( &current_node ).unwrap();
+                let current_distance: u64 = current_info.0;
                 let new_distance = current_distance + neighbour.weight;
 
-                if current_node.1 == 0 && neighbour.depth < 0 {
+                let mut new_neighbour = ( neighbour.key.clone(), current_node.1 + neighbour.depth );
+
+                if current_info.1 != neighbour.depth { 
+                    // update this if it goes through a different node then it will apply this when it shouldn't as it isn't going back up its current node
+                    // potentially have a field that 
+                    new_neighbour.1 -= current_info.1;
+                }
+
+                if new_neighbour.1 < 0 {
                     continue;
                 }
 
-                let new_neighbour = ( neighbour.key.clone(), current_node.1 + neighbour.depth );
-
                 if let Some( next_neighbour_distance ) = distances.get( &new_neighbour ) {
-                    if new_distance < *next_neighbour_distance {
-                        distances.insert( new_neighbour.clone(), new_distance );
+                    if new_distance < next_neighbour_distance.0 {
+                        distances.insert( new_neighbour.clone(), ( new_distance, neighbour.depth ) );
                         to_visit.push( new_neighbour.clone() );
                     }
                 } else {
-                    distances.insert( new_neighbour.clone(), new_distance );
-                    to_visit.push( new_neighbour.clone() );
+                    // todo check the level just above or bellow to see if this node has been travelled through
+                    let mut test_neighbour = new_neighbour.clone();
+                    test_neighbour.1 += current_info.1;
+
+                    if let Some( next_neighbour_distance ) = distances.get( &test_neighbour ) {
+                        if new_distance < next_neighbour_distance.0 {
+                            distances.insert( new_neighbour.clone(), ( new_distance, neighbour.depth ) );
+                            to_visit.push( new_neighbour.clone() );
+                        }
+                    } else {
+                        distances.insert( new_neighbour.clone(), ( new_distance, neighbour.depth ) );
+                        to_visit.push( new_neighbour.clone() );
+                    }
                 }
             }
         }
     }
 
-    return distances;
+    return distances.iter()
+        .map( |( k, v )| ( k.clone(), v.0 ) )
+        .collect();
 }
 
 fn part_one( graph: BTreeMap< String, Vec< Neighbour > > ) {
@@ -360,10 +383,12 @@ fn part_two( graph: BTreeMap< String, Vec< Neighbour > > ) {
     println!( "Part Two: minimum distance to exit = {}", distance );
 }
 
+#[allow(dead_code)]
 pub fn day_20( _args: Vec<String> ) {
-    let graph = build_graph( true );
-    part_one( graph.clone() );
+    // let graph = build_graph( true );
+    // part_one( graph.clone() );
 
     let graph_two = build_graph( false );
     part_two( graph_two.clone() );
+    println!( "{:?}", graph_two );
 }
