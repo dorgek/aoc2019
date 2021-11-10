@@ -68,6 +68,34 @@ fn process_input_instructions( input: &str, n: i128 ) -> LinearEquation {
     return reduced_linear_equation;
 }
 
+/// fast modular exponential where base^exp mod m
+fn modular_exponential( base: i128, exp: i128, m: i128 ) -> i128 {
+    assert!( exp >= 0 );
+
+    if exp == 0 {
+        return 1;
+    }
+
+    let mut result: i128 = 1;
+    let mut b = base.rem_euclid( m );
+    let mut e = exp;
+
+    loop {
+        if e.rem_euclid( 2 ) == 1 {
+            result *= b;
+            result = result.rem_euclid( m );
+        }
+
+        if e == 1 {
+            return result;
+        }
+
+        e /= 2;
+        b *= b;
+        b = b.rem_euclid( m );
+    }
+}
+
 fn part_one( linear_equation: LinearEquation, start_index: i128, n: i128 ) {
     let res = ( linear_equation.b * start_index + linear_equation.c ).rem_euclid( n );
 
@@ -78,17 +106,32 @@ fn part_two( linear_equation: LinearEquation, n: i128, m: i128, y: i128 ) {
     // the iterations can be continuous shuffles can be simplified down into a geometric progression such as 
     // yn = b^n xn + c b ^(n - 1), where n is the number of shuffles
 
-    let c = ( linear_equation.c * ( 1 - linear_equation.b.pow( ( n ) as u32 ) ) / ( 1 - linear_equation.b ) ).rem_euclid( m ); // TODO: complete modular exponential 
-    let b = linear_equation.b.pow( n as u32 ).rem_euclid( m );
-    println!( "y = {}x + {}", b, c );
+    let b = modular_exponential( linear_equation.b, n, m );
+    let d = modular_exponential( 1 - linear_equation.b, m - 2, m ); // calcualte the modular inverse of the denominator to enable finding this
+    let c = ( linear_equation.c * ( 1 - b ) * d ).rem_euclid( m );  // TODO: look into how the expanded euclidian equation occurs
+
+    println!( "2020 = {}x + {} mod {}", b, c, m );
 
     // TODO: find the multiplicative inverse of the 2020 = bx + c mod m and solve for x
+    // 2020 mod^-1 m = bx + c 
+    // 
 }
 
+#[allow(dead_code)]
 pub fn day_22( _: Vec< String > ) {
     let n = 10007;
     let i = 2019;
     let linear_equation_one = process_input_instructions( DATA.clone(), n );
 
     part_one( linear_equation_one, i, n );
+    println!( "first equation: {:?}", linear_equation_one );
+
+    // part two testing
+    let mut new_data: String = DATA.clone().to_string();
+    new_data.push_str( "\n" );
+    new_data.push_str( DATA.clone() );
+    let linear_equation_repeated = process_input_instructions( &new_data, n );
+
+    println!( "Linear equation: {:?}", linear_equation_repeated );
+    part_two( linear_equation_one, 101741582076661, 119315717514047, 0 );
 }
