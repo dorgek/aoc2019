@@ -243,7 +243,7 @@ fn part_one() {
     }
 }
 
-
+#[allow(dead_code)]
 pub fn day_23( _: Vec<String> ) {
     part_one();
 }
