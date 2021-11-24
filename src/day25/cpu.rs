@@ -19,7 +19,7 @@ pub trait Computer< T: Consumer, U: Producer > {
     fn execute_instruction( &mut self );
     fn execute_instructions( &mut self );
     fn print_initial_value( &mut self );
-    fn get_output_value( &mut self ) -> i64;
+    fn get_output_value( &mut self ) -> Option< i64 >;
     fn set_inputs( &mut self, inputs: Vec<i64> );
     fn set_inputs_consumer( &mut self, _: T );
     fn set_outputs_producer( &mut self, _: U );
@@ -41,9 +41,25 @@ pub trait Consumer {
     fn get_value( &mut self ) -> i64;
 }
 
+
+struct StandardConsumer {}
+
+impl Consumer for StandardConsumer {
+    fn get_value( &mut self ) -> i64 {
+        let mut buff = String::new();
+
+        print!( "Enter a value: " );
+        io::stdout().flush().ok().expect( "could not flush" );
+        io::stdin().read_line( &mut buff ).expect( "failed to read line" );
+        return buff.trim().parse().unwrap();
+    }
+}
+
 pub trait Producer {
     fn load_value( &mut self, _: i64 );
 }
+
+struct StandardProducer {}
 
 pub struct CPU<T: Consumer, U: Producer> {
     dispatcher: HashMap<usize, Instruction<T, U>>,
@@ -209,8 +225,8 @@ impl < T: Consumer, U: Producer > Computer<T, U> for CPU< T, U > {
         println!( "{}", self.memory[&0] );
     }
 
-    fn get_output_value( &mut self ) -> i64 {
-        let ret = self.out.unwrap();
+    fn get_output_value( &mut self ) -> Option< i64 > {
+        let ret = self.out;
         self.out = None;
         return ret;
     }
